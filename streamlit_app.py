@@ -51,7 +51,11 @@ def roundedPolygon(
 		firstControlPoint = numpy.add(firstPoint, numpy.multiply(numpy.subtract(centrePoint, firstPoint), controlPointRatio))
 		secondControlPoint = numpy.add(secondPoint, numpy.multiply(numpy.subtract(centrePoint, secondPoint), controlPointRatio))
 
-		path.append(f"{"M" if sideIndex == 0 else "L"} {firstPoint[0] + x} {firstPoint[1] + y}")
+		if sideIndex == 0:
+			path.append(f"M {firstPoint[0] + x} {firstPoint[1] + y}")
+		else:
+			path.append(f"L {firstPoint[0] + x} {firstPoint[1] + y}")
+			
 		path.append(f"C {firstControlPoint[0] + x} {firstControlPoint[1] + y} {secondControlPoint[0] + x} {secondControlPoint[1] + y} {secondPoint[0] + x} {secondPoint[1] + y}")
 
 	path.append("Z")
