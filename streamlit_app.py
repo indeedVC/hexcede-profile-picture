@@ -200,7 +200,7 @@ def main():
 <style>
 @font-face {{
   font-family: 'Virtual Rave';
-  src: url('/static/Virtual+Rave.ttf') format('ttf');
+  src: url('/app/static/Virtual+Rave.ttf') format('ttf');
 }}
 </style>
 <canvas id="svgCanvas" width="{canvasSize}" height="{canvasSize}" style="border:1px solid #000000;"></canvas>
