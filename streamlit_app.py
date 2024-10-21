@@ -67,11 +67,13 @@ def generateSVG(
 	sideCount: int = 6,
 	text: str = "HC",
 	radius: int = 147,
-	strokeWidth: int = 9.97701,
+	strokeWidth: float = 9.97701,
 	textSize: int = None,
 	cornerRadius: int = None,
 	textPosition: tuple = None,
-	polygonAngle: int = None
+	polygonAngle: int = None,
+	x: int = 0,
+	y: int = 0,
 ) -> str:
 	if cornerRadius == None: cornerRadius = radius * 0.2
 
@@ -96,10 +98,10 @@ def generateSVG(
 		colorsys.hsv_to_rgb((hsv[0] - 0.08333) % 1, 0.14, 0.15)
 	]
 
-	polygonPath = roundedPolygon(sideCount, radius - strokeWidth / 2, cornerRadius, x=radius, y=radius, degreesAngle=polygonAngle)
+	polygonPath = roundedPolygon(sideCount, radius - strokeWidth / 2, cornerRadius, x=radius + x, y=radius + y, degreesAngle=polygonAngle)
 
 	return f"""<?xml version="1.0" encoding="utf-8"?>
-<svg width="{( radius + strokeWidth ) * 2}px" height="{( radius + strokeWidth ) * 2}px" preserveAspectRatio="none"
+<svg width="{radius * 2 + x}px" height="{radius * 2 + y}px" preserveAspectRatio="none"
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>
@@ -160,12 +162,14 @@ def generateSVG(
 	<g style="filter: url('#point-light-filter-0');" id="object-0">
 		<rect style="filter: none; stroke-width: 6px; fill: rgb(64, 64, 64); visibility: hidden; shape-rendering: geometricprecision;" y="1.147" width="500" height="497.706"/>
 		<path d="{polygonPath}" style="paint-order: fill; fill-rule: nonzero; stroke: url('#gradient-4-0'); filter: url('#drop-shadow-filter-1'); stroke-width: {strokeWidth}px; fill: url('#gradient-0-0'); shape-rendering: geometricprecision;"/>
-		<text letter-spacing="{textSize / 16}" style="font-family: &quot;Virtual Rave&quot;; font-size: {textSize}px; font-weight: 600; stroke-linejoin: round; stroke-width: 7px; text-anchor: middle; white-space: pre; fill: url(&quot;#gradient-4-2&quot;); filter: url(&quot;#filter-1&quot;);" x="{textPosition[0]}" y="{textPosition[1] + textSize / 2}">{text}</text>
+		<text letter-spacing="{textSize / 16}" style="font-family: &quot;Virtual Rave&quot;; font-size: {textSize}px; font-weight: 600; stroke-linejoin: round; stroke-width: 7px; text-anchor: middle; white-space: pre; fill: url(&quot;#gradient-4-2&quot;); filter: url(&quot;#filter-1&quot;);" x="{textPosition[0] + x}" y="{textPosition[1] + textSize / 2 + y}">{text}</text>
 	</g>
 </svg>
 """
 
 def main():
+	padding = 32
+
 	st.title("Hexcede Generator")
 
 	primary_color = st.color_picker("Pick a primary color", "#B1FF00")
@@ -187,12 +191,39 @@ def main():
 		text=text,
 		textSize=text_size,
 		textPosition=(text_x, text_y),
+		x=padding,
+		y=padding
 	)
 
-	st.markdown(f'<div>{svg}</div>', unsafe_allow_html=True)
+	canvasSize = ( 147 + padding ) * 2
+	html = f"""
+<style>
+@font-face {{
+  font-family: 'Virtual Rave';
+  src: url('/static/media/Virtual+Rave.ttf') format('ttf');
+}}
+</style>
+<canvas id="svgCanvas" width="{canvasSize}" height="{canvasSize}" style="border:1px solid #000000;"></canvas>
+<script>
+	var svgString = `{svg}`;
+	var canvas = document.getElementById('svgCanvas');
+	var ctx = canvas.getContext('2d');
 
-	st.text("There is a lack of SVG -> PNG conversion libraries available that support more complicated features. You could use something like https://boxy-svg.com/ to export the SVG here as a PNG, or possibly some other app like Inkspace.")
-	st.download_button(label="Download as SVG", data=svg, file_name="image.svg", mime="image/svg", use_container_width=True)
+	var img = new Image();
+	var svgBlob = new Blob([svgString], {{type: 'image/svg+xml;charset=utf-8'}});
+	var url = URL.createObjectURL(svgBlob);
+
+	img.onload = function() {{
+		ctx.drawImage(img, 0, 0);
+		URL.revokeObjectURL(url);
+	}};
+
+	img.src = url;
+</script>
+"""
+
+	st.components.v1.html(html, height=canvasSize)
+	st.download_button(label="Download as SVG", data=svg, file_name="image.svg", mime="image/svg")
 
 if __name__ == "__main__":
 	main()
