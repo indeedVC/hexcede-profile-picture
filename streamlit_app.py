@@ -191,7 +191,7 @@ def main():
 
 	st.markdown(f'<div>{svg}</div>', unsafe_allow_html=True)
 
-	st.text(text="There is a lack of SVG -> PNG conversion libraries available that support more complicated features. You could use something like https://boxy-svg.com/ to export the SVG here as a PNG, or possibly some other app like Inkspace.")
+	st.text("There is a lack of SVG -> PNG conversion libraries available that support more complicated features. You could use something like https://boxy-svg.com/ to export the SVG here as a PNG, or possibly some other app like Inkspace.")
 	st.download_button(label="Download as SVG", data=svg, file_name="image.svg", mime="image/svg", use_container_width=True)
 
 if __name__ == "__main__":
